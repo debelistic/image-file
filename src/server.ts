@@ -41,10 +41,12 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
     try {
       if(!req.query.image_url)res.status(400).send("enter image url")
       const response = await filterImageFromURL(req.query.image_url.trim())
-      console.log(response)
-      await deleteLocalFiles([response])
 
-      res.status(200).send(response)
+      res.status(200).sendFile(response, (err) => {
+        if(err) res.status(200).send(err.message)
+        deleteLocalFiles([response])
+          .then(() => console.log('files removed'))
+      })
     } catch (error) {
       res.status(400).send(error.message)
     }
